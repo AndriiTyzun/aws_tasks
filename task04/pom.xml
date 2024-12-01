@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>task03-group</groupId>
-    <artifactId>task03</artifactId>
+    <groupId>task04-group</groupId>
+    <artifactId>task04</artifactId>
     <version>1.0.0</version>
 
     <properties>
@@ -23,12 +23,12 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-lambda-java-core</artifactId>
-            <version>1.2.0</version>
+            <version>1.2.3</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-lambda-java-events</artifactId>
-            <version>3.12.0</version>
+            <version>3.14.0</version>
         </dependency>
         <!-- JSON dependencies-->
         <dependency>
@@ -58,7 +58,7 @@
                 <version>${syndicate.java.plugin.version}</version>
                 <configuration>
                     <packages>
-                        <package>com.task03</package>
+                        <package>com.task04</package>
                     </packages>
                     <fileName>${project.name}-${project.version}.jar</fileName>
                 </configuration>
