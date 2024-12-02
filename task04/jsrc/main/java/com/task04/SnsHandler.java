@@ -24,10 +24,10 @@ import java.util.Map;
 @SnsEventSource(
 		targetTopic = "lambda_topic"
 )
-@DependsOn(
-		name = "lambda_topic",
-		resourceType = ResourceType.SNS_TOPIC
-)
+//@DependsOn(
+//		name = "lambda_topic",
+//		resourceType = ResourceType.SNS_TOPIC
+//)
 public class SnsHandler implements RequestHandler<SNSEvent, Void> {
 
 	@Override

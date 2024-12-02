@@ -20,10 +20,10 @@ import com.syndicate.deployment.model.RetentionSetting;
 		targetQueue = "async_queue",
 		batchSize = 10
 )
-@DependsOn(
-		name = "async_queue",
-		resourceType = ResourceType.SQS_QUEUE
-)
+//@DependsOn(
+//		name = "async_queue",
+//		resourceType = ResourceType.SQS_QUEUE
+//)
 public class SqsHandler implements RequestHandler<SQSEvent, Void> {
 
 	@Override
