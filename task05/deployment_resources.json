@@ -39,31 +39,19 @@
     "hash_key_name": "id",
     "hash_key_type": "S",
     "read_capacity": 1,
-    "write_capacity": 1,
-    "global_indexes": [],
-    "autoscaling": [],
-    "tags": {}
+    "write_capacity": 1
   },
   "task5_api": {
     "resource_type": "api_gateway",
     "deploy_stage": "api",
-    "dependencies": [],
     "resources": {
       "/events": {
-        "enable_cors": false,
         "POST": {
           "authorization_type": "NONE",
           "integration_type": "lambda",
-          "lambda_name": "api_handler",
-          "api_key_required": false,
-          "method_request_parameters": {},
-          "integration_request_body_template": {},
-          "responses": [],
-          "integration_responses": [],
-          "default_error_pattern": true
+          "lambda_name": "api_handler"
         }
       }
-    },
-    "tags": {}
+    }
   }
 }

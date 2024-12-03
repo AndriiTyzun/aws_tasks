@@ -6,11 +6,11 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.syndicate.deployment.annotations.environment.EnvironmentVariable;
 import com.syndicate.deployment.annotations.lambda.LambdaHandler;
 import com.syndicate.deployment.annotations.lambda.LambdaUrlConfig;
 import com.syndicate.deployment.model.RetentionSetting;
@@ -32,20 +32,20 @@ import java.util.UUID;
 		authType = AuthType.NONE,
 		invokeMode = InvokeMode.BUFFERED
 )
-public class ApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
+public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent , APIGatewayProxyResponseEvent> {
 	private static final String TABLE_NAME = "Events";
 	private final DynamoDB dynamoDB = new DynamoDB(AmazonDynamoDBClientBuilder.defaultClient());
 
 	@Override
-	public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent request, Context context) {
+	public APIGatewayProxyResponseEvent  handleRequest(APIGatewayProxyRequestEvent request, Context context) {
 		try {
-			context.getLogger().log("Received event: " + request);
-			Map<String, Object> input = new ObjectMapper().readValue(request.getBody(), Map.class);
-			context.getLogger().log("input: " + input);
+			context.getLogger().log("Request: " + request);
+			context.getLogger().log("Request Body: " + request.getBody());
+			ObjectMapper mapper = new ObjectMapper();
+			Map<String, Object> input = mapper.readValue(request.getBody(), Map.class);
 
-			Integer principalId = (Integer) input.get("principalId");
+			int principalId = (int) input.get("principalId");
 			Map<String, String> content = (Map<String, String>) input.get("content");
-			context.getLogger().log("content: " + content);
 
 			String id = UUID.randomUUID().toString();
 			String createdAt = Instant.now().toString();
@@ -65,19 +65,16 @@ public class ApiHandler implements RequestHandler<APIGatewayV2HTTPEvent, APIGate
 					"body", content
 			);
 
-			return  APIGatewayV2HTTPResponse.builder()
+			return new APIGatewayProxyResponseEvent ()
 					.withStatusCode(201)
-					.withBody(new ObjectMapper().writeValueAsString(Map.of("statusCode", 201, "event", event)))
-					.withHeaders(Map.of("Content-Type", "application/json"))
-					.build();
-
+					.withBody(mapper.writeValueAsString(Map.of("statusCode", 201, "event", event)))
+					.withHeaders(Map.of("Content-Type", "application/json"));
 		} catch (Exception e) {
-			context.getLogger().log("Error saving event = " + e.getMessage() + " | " + request.getBody());
-			return  APIGatewayV2HTTPResponse.builder()
+			context.getLogger().log("Error: " + e.getMessage());
+			return new APIGatewayProxyResponseEvent()
 					.withStatusCode(500)
-					.withBody("{\"message\": \"Internal Server Error+ " + e.getMessage() + " \"}"+ " | " + request.getBody())
-					.withHeaders(Map.of("Content-Type", "application/json"))
-					.build();
+					.withBody("{\"message\": \"Internal Server Error: " + e.getMessage() + "\"}")
+					.withHeaders(Map.of("Content-Type", "application/json"));
 		}
 	}
 }
