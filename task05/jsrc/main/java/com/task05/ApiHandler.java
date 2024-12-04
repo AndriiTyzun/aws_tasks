@@ -36,14 +36,14 @@ import java.util.UUID;
 )
 @EnvironmentVariable(key = "table", value = "${target_table}")
 public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent , APIGatewayProxyResponseEvent> {
-	private static final String TABLE_NAME = "cmtr-cf49cae1-" + System.getenv("table");
+	private static final String TABLE_NAME = System.getenv("table");
 	private final DynamoDB dynamoDB = new DynamoDB(AmazonDynamoDBClientBuilder
 			.standard().withRegion(Regions.EU_CENTRAL_1).build());
 
 	@Override
 	public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
 		try {
-			context.getLogger().log("Request: " + request);
+			context.getLogger().log("Table: " + TABLE_NAME);
 			context.getLogger().log("Request body: " + request.getBody());
 
 			ObjectMapper mapper = new ObjectMapper();

@@ -15,7 +15,9 @@
     "security_group_ids" : [ ],
     "dependencies" : [ ],
     "event_sources" : [ ],
-    "env_variables" : { },
+    "env_variables" : {
+      "table" : "${target_table}"
+    },
     "tags" : { },
     "publish_version" : true,
     "alias" : "${lambdas_alias_name}",
