@@ -12,6 +12,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.syndicate.deployment.annotations.environment.EnvironmentVariable;
 import com.syndicate.deployment.annotations.lambda.LambdaHandler;
 import com.syndicate.deployment.annotations.lambda.LambdaUrlConfig;
 import com.syndicate.deployment.model.RetentionSetting;
@@ -33,8 +34,9 @@ import java.util.UUID;
 		authType = AuthType.NONE,
 		invokeMode = InvokeMode.BUFFERED
 )
+@EnvironmentVariable(key = "table", value = "${target_table}")
 public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent , APIGatewayProxyResponseEvent> {
-	private static final String TABLE_NAME = "Events";
+	private static final String TABLE_NAME = "cmtr-cf49cae1-" + System.getenv("table");
 	private final DynamoDB dynamoDB = new DynamoDB(AmazonDynamoDBClientBuilder
 			.standard().withRegion(Regions.EU_CENTRAL_1).build());
 
@@ -54,7 +56,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent , 
 			String id = UUID.randomUUID().toString();
 			String createdAt = Instant.now().toString();
 
-			Table table = dynamoDB.getTable("cmtr-cf49cae1-" + TABLE_NAME);
+			Table table = dynamoDB.getTable(TABLE_NAME);
 			Item item = new Item()
 					.withPrimaryKey("id", id)
 					.withInt("principalId", principalId)
