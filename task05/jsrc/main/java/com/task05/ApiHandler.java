@@ -1,5 +1,6 @@
 package com.task05;
 
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
@@ -34,28 +35,33 @@ import java.util.UUID;
 )
 public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent , APIGatewayProxyResponseEvent> {
 	private static final String TABLE_NAME = "Events";
-	private final DynamoDB dynamoDB = new DynamoDB(AmazonDynamoDBClientBuilder.defaultClient());
+	private final DynamoDB dynamoDB = new DynamoDB(AmazonDynamoDBClientBuilder
+			.standard().withRegion(Regions.EU_CENTRAL_1).build());
 
 	@Override
-	public APIGatewayProxyResponseEvent  handleRequest(APIGatewayProxyRequestEvent request, Context context) {
+	public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
 		try {
 			context.getLogger().log("Request: " + request);
-			context.getLogger().log("Request Body: " + request.getBody());
+			context.getLogger().log("Request body: " + request.getBody());
+
 			ObjectMapper mapper = new ObjectMapper();
 			Map<String, Object> input = mapper.readValue(request.getBody(), Map.class);
 
 			int principalId = (int) input.get("principalId");
 			Map<String, String> content = (Map<String, String>) input.get("content");
+			context.getLogger().log("Content: " + content);
 
 			String id = UUID.randomUUID().toString();
 			String createdAt = Instant.now().toString();
 
-			Table table = dynamoDB.getTable(TABLE_NAME);
+			Table table = dynamoDB.getTable("cmtr-cf49cae1-" + TABLE_NAME);
 			Item item = new Item()
 					.withPrimaryKey("id", id)
 					.withInt("principalId", principalId)
 					.withString("createdAt", createdAt)
 					.withMap("body", content);
+
+			context.getLogger().log("Item: " + item);
 			table.putItem(item);
 
 			Map<String, Object> event = Map.of(
