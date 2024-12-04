@@ -28,8 +28,8 @@ import java.util.UUID;
 	aliasName = "${lambdas_alias_name}",
 	logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
 )
-@DynamoDbTriggerEventSource(targetTable = "${source_table}", batchSize = 1)
-@DependsOn(name = "${source_table}", resourceType = ResourceType.DYNAMODB_TABLE)
+@DynamoDbTriggerEventSource(targetTable = "Configuration", batchSize = 1)
+@DependsOn(name = "Configuration", resourceType = ResourceType.DYNAMODB_TABLE)
 @EnvironmentVariable(key = "target_table", value = "${target_table}")
 public class AuditProducer implements RequestHandler<DynamodbEvent, Void> {
 
@@ -37,6 +37,7 @@ public class AuditProducer implements RequestHandler<DynamodbEvent, Void> {
 	private final DynamoDB dynamoDB = new DynamoDB(dynamoDBClient);
 
 	public Void  handleRequest(DynamodbEvent event, Context context) {
+		context.getLogger().log("Target table: " + System.getenv("target_table"));
 		Table auditTable = dynamoDB.getTable(System.getenv("target_table"));
 
 		for (DynamodbEvent.DynamodbStreamRecord record : event.getRecords()) {
