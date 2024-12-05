@@ -25,14 +25,66 @@
     "resource_type": "iam_policy",
     "tags": {}
   },
+  "uuid_generator-policy": {
+    "resource_type": "iam_policy",
+    "policy_content": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Action": [
+            "s3:FullAccess"
+          ],
+          "Resource": "*",
+          "Effect": "Allow"
+        }
+      ]
+    }
+  },
   "uuid_generator-role": {
     "predefined_policies": [],
     "principal_service": "lambda",
     "custom_policies": [
-      "lambda-basic-execution"
+      "lambda-basic-execution",
+      "uuid_generator-policy"
     ],
     "resource_type": "iam_role",
     "tags": {}
+  },
+  "uuid_generator": {
+    "name": "uuid_generator",
+    "lambda_path": "E:\\Projects\\EPAM\\EPAM_Lab\\aws_tasks\\task07",
+    "version": "1.0.0",
+    "func_name": "com.task07.UuidGenerator",
+    "deployment_package": "task07-1.0.0.jar",
+    "resource_type": "lambda",
+    "runtime": "java11",
+    "architectures": [
+      "x86_64"
+    ],
+    "iam_role_name": "uuid_generator-role",
+    "memory": 1024,
+    "timeout": 300,
+    "subnet_ids": [],
+    "security_group_ids": [],
+    "dependencies": [
+      {
+        "resource_name": "uuid_trigger",
+        "resource_type": "cloudwatch_rule"
+      }
+    ],
+    "event_sources": [
+      {
+        "resource_type": "cloudwatch_rule_trigger",
+        "target_rule": "uuid_trigger"
+      }
+    ],
+    "env_variables": {
+      "bucket": "${target_bucket}"
+    },
+    "tags": {},
+    "publish_version": true,
+    "alias": "${lambdas_alias_name}",
+    "logs_expiration": "${logs_expiration}"
   },
   "uuid-storage": {
     "resource_type": "s3_bucket",
@@ -44,8 +96,7 @@
       "ignore_public_acls": true,
       "block_public_policy": true,
       "restrict_public_buckets": true
-    },
-    "tags": {}
+    }
   },
   "uuid_trigger": {
     "resource_type": "cloudwatch_rule",
