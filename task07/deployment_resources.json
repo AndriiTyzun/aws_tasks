@@ -32,7 +32,7 @@
       "Statement": [
         {
           "Action": [
-            "s3:FullAccess"
+            "s3:PutObject"
           ],
           "Resource": "*",
           "Effect": "Allow"
