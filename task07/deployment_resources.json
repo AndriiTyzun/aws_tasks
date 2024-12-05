@@ -51,6 +51,7 @@
     "resource_type": "cloudwatch_rule",
     "rule_type": "schedule",
     "tags": {},
-    "expression": "rate(1 minute)"
+    "expression": "rate(1 minute)",
+    "lambda_targets": ["uuid_generator"]
   }
 }
