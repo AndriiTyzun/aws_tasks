@@ -31,14 +31,6 @@
             <artifactId>deployment-configuration-annotations</artifactId>
             <version>${syndicate.java.plugin.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.task08</groupId>
-            <artifactId>open-meteo-sdk</artifactId>
-            <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/clients/open-meteo-sdk.jar</systemPath>
-        </dependency>
     </dependencies>
 
     <build>
