@@ -103,6 +103,17 @@
     "rule_type": "schedule",
     "tags": {},
     "expression": "rate(1 minute)",
-    "lambda_targets": ["uuid_generator"]
+    "lambda_targets": [
+      "uuid_generator"
+    ]
+  },
+  "api_handler-role": {
+    "predefined_policies": [],
+    "principal_service": "lambda",
+    "custom_policies": [
+      "lambda-basic-execution"
+    ],
+    "resource_type": "iam_role",
+    "tags": {}
   }
 }
