@@ -40,9 +40,10 @@
             <artifactId>aws-java-sdk-xray</artifactId>
             <version>1.12.779</version>
         </dependency>
+
         <dependency>
             <groupId>com.amazonaws</groupId>
-            <artifactId>aws-xray-recorder-sdk-spring</artifactId>
+            <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
             <version>2.17.0</version>
         </dependency>
         <!--Syndicate annotations-->
