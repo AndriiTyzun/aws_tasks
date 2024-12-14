@@ -278,6 +278,16 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 				return createErrorResponse(400, "Conflicting reservation exists for the selected time slot.");
 			}
 
+			Table table = dynamoDB.getTable(System.getenv("Tables"));
+			Iterator<Item> tableiterator = table.scan().iterator();
+			List<Item> items = new ArrayList<>();
+			while (iterator.hasNext()) {
+				items.add(iterator.next());
+			}
+			if(items.stream().noneMatch(x -> x.getInt("number") == tableNumber)){
+				return createErrorResponse(400, "Table not found");
+			}
+
 			Item newReservation = new Item()
 					.withPrimaryKey("id", reservationId)
 					.withInt("tableNumber", tableNumber)
