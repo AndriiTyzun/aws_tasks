@@ -192,7 +192,7 @@
   "Tables": {
     "resource_type": "dynamodb_table",
     "hash_key_name": "id",
-    "hash_key_type": "S",
+    "hash_key_type": "N",
     "read_capacity": 1,
     "write_capacity": 1,
     "global_indexes": [],

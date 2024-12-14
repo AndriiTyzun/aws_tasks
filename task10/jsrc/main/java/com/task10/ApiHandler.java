@@ -270,7 +270,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 			return createSuccessResponse(Map.of("reservationId", reservationId));
 		} catch (Exception e) {
-			return createErrorResponse(500, "Failed to create reservation " + e);
+			return createErrorResponse(400, "Failed to create reservation " + e);
 		}
 	}
 
@@ -294,7 +294,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 			return createSuccessResponse(Map.of("reservations", reservationList));
 		} catch (Exception e) {
-			return createErrorResponse(500, "Failed to fetch reservations " + e);
+			return createErrorResponse(400, "Failed to fetch reservations " + e);
 		}
 	}
 
