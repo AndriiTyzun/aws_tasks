@@ -244,6 +244,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 		try {
 			Table reservationsTable = dynamoDB.getTable(System.getenv("Reservations"));
+			Table tablesTable = dynamoDB.getTable(System.getenv("Tables"));
 			context.getLogger().log("Request body: " + body);
 
 			String reservationId = UUID.randomUUID().toString();
@@ -254,6 +255,19 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 			String date = body.get("date");
 			String slotTimeStart = body.get("slotTimeStart");
 			String slotTimeEnd = body.get("slotTimeEnd");
+
+			Iterator<Item> tablesIterator = tablesTable.scan().iterator();
+			List<Item> items = new ArrayList<>();
+			while (tablesIterator.hasNext()) {
+				items.add(tablesIterator.next());
+			}
+			boolean tableExists = items
+					.stream()
+					.anyMatch(item -> item.getInt("number") == tableNumber);
+
+			if (!tableExists) {
+				return createErrorResponse(400, "Invalid table number: The table does not exist.");
+			}
 
 			Iterator<Item> iterator = reservationsTable.scan().iterator();
 			List<Item> existingReservations = new ArrayList<>();
@@ -276,16 +290,6 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 			if (conflict) {
 				return createErrorResponse(400, "Conflicting reservation exists for the selected time slot.");
-			}
-
-			Table table = dynamoDB.getTable(System.getenv("Tables"));
-			Iterator<Item> tableiterator = table.scan().iterator();
-			List<Item> items = new ArrayList<>();
-			while (iterator.hasNext()) {
-				items.add(iterator.next());
-			}
-			if(items.stream().noneMatch(x -> x.getInt("number") == tableNumber)){
-				return createErrorResponse(400, "Table not found");
 			}
 
 			Item newReservation = new Item()
