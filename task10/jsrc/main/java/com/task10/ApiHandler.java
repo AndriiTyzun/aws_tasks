@@ -39,7 +39,9 @@ import static com.syndicate.deployment.model.environment.ValueTransformer.USER_P
 @EnvironmentVariables(value = {
 		@EnvironmentVariable(key = "REGION", value = "${region}"),
 		@EnvironmentVariable(key = "COGNITO_ID", value = "${booking_userpool}", valueTransformer = USER_POOL_NAME_TO_USER_POOL_ID),
-		@EnvironmentVariable(key = "CLIENT_ID", value = "${booking_userpool}", valueTransformer = USER_POOL_NAME_TO_CLIENT_ID)
+		@EnvironmentVariable(key = "CLIENT_ID", value = "${booking_userpool}", valueTransformer = USER_POOL_NAME_TO_CLIENT_ID),
+		@EnvironmentVariable(key = "Tables", value = "${tables_table}"),
+		@EnvironmentVariable(key = "Reservations", value = "${reservations_table}")
 })
 public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
@@ -160,7 +162,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 	private APIGatewayProxyResponseEvent getTablesHandler(APIGatewayProxyRequestEvent event, Context context) {
 		try {
-			Table table = dynamoDB.getTable("Tables");
+			Table table = dynamoDB.getTable(System.getenv("tables_table"));
 			List<Item> items = table.scan().getLastLowLevelResult().getItems();
 			List<Map<String, Object>> tables = items.stream().map(item -> {
 					Map<String, Object> tmp = new HashMap<String, Object>();
@@ -181,7 +183,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 	private APIGatewayProxyResponseEvent postTablesHandler(APIGatewayProxyRequestEvent event, Context context) {
 		Map<String, String> body = parseRequestBody(event.getBody());
 		try {
-			Table table = dynamoDB.getTable("Tables");
+			Table table = dynamoDB.getTable(System.getenv("tables_table"));
 			Item newItem = new Item()
 					.withPrimaryKey("id", Integer.parseInt(body.get("id")))
 					.withInt("number", Integer.parseInt(body.get("number")))
@@ -203,7 +205,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 	private APIGatewayProxyResponseEvent getTableByIdHandler(APIGatewayProxyRequestEvent event, Context context) {
 		try {
 			String tableId = event.getPathParameters().get("tableId");
-			Table table = dynamoDB.getTable("Tables");
+			Table table = dynamoDB.getTable(System.getenv("tables_table"));
 			Item item = table.getItem("id", Integer.parseInt(tableId));
 
 			if (item == null) {
@@ -228,7 +230,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		Map<String, String> body = parseRequestBody(event.getBody());
 
 		try {
-			Table reservationsTable = dynamoDB.getTable("Reservations");
+			Table reservationsTable = dynamoDB.getTable(System.getenv("reservations_table"));
 
 			String reservationId = UUID.randomUUID().toString();
 
@@ -274,7 +276,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 	private APIGatewayProxyResponseEvent getReservationsHandler(APIGatewayProxyRequestEvent event, Context context) {
 		try {
-			Table reservationsTable = dynamoDB.getTable("Reservations");
+			Table reservationsTable = dynamoDB.getTable(System.getenv("reservations_table"));
 
 			List<Item> reservations = reservationsTable.scan().getLastLowLevelResult().getItems();
 
