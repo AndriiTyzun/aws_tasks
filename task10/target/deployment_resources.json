@@ -24,6 +24,8 @@
         "parameter" : "client_id",
         "resource_type" : "cognito_idp"
       },
+      "Tables" : "${tables_table}",
+      "Reservations" : "${reservations_table}",
       "COGNITO_ID" : {
         "resource_name" : "${booking_userpool}",
         "parameter" : "id",

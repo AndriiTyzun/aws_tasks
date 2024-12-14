@@ -163,7 +163,15 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 	private APIGatewayProxyResponseEvent getTablesHandler(APIGatewayProxyRequestEvent event, Context context) {
 		try {
 			Table table = dynamoDB.getTable(System.getenv("Tables"));
-			List<Item> items = table.scan().getLastLowLevelResult().getItems();
+
+			Iterator<Item> iterator = table.scan().iterator();
+			List<Item> items = new ArrayList<>();
+			while (iterator.hasNext()) {
+				items.add(iterator.next());
+			}
+
+			context.getLogger().log("Tables items: " + items);
+
 			List<Map<String, Object>> tables = items.stream().map(item -> {
 					Map<String, Object> tmp = new HashMap<String, Object>();
 					tmp.put("id", item.getInt("id"));
@@ -173,6 +181,8 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 					tmp.put("minOrder", item.isPresent("minOrder") ? item.getInt("minOrder") : null);
 					return tmp;
 			}).collect(Collectors.toList());
+
+			context.getLogger().log("Tables: " + tables);
 
 			return createSuccessResponse(Map.of("tables", tables));
 		} catch (Exception e) {
@@ -206,7 +216,10 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		try {
 			String tableId = event.getPathParameters().get("tableId");
 			Table table = dynamoDB.getTable(System.getenv("Tables"));
+			context.getLogger().log("Table Id: " + tableId);
+
 			Item item = table.getItem("id", Integer.parseInt(tableId));
+			context.getLogger().log("Table fetched item: " + item);
 
 			if (item == null) {
 				return createErrorResponse(400, "Table not found");
@@ -231,6 +244,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 		try {
 			Table reservationsTable = dynamoDB.getTable(System.getenv("Reservations"));
+			context.getLogger().log("Request body: " + body);
 
 			String reservationId = UUID.randomUUID().toString();
 
@@ -241,7 +255,14 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 			String slotTimeStart = body.get("slotTimeStart");
 			String slotTimeEnd = body.get("slotTimeEnd");
 
-			List<Item> existingReservations = reservationsTable.scan().getLastLowLevelResult().getItems();
+			Iterator<Item> iterator = reservationsTable.scan().iterator();
+			List<Item> existingReservations = new ArrayList<>();
+			while (iterator.hasNext()) {
+				existingReservations.add(iterator.next());
+			}
+
+			context.getLogger().log("Reservations: " + existingReservations);
+
 			boolean conflict = existingReservations.stream().anyMatch(reservation ->
 					reservation.getString("tableNumber").equals(String.valueOf(tableNumber)) &&
 							reservation.getString("date").equals(date) &&
@@ -258,13 +279,14 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 			}
 
 			Item newReservation = new Item()
-					.withPrimaryKey("reservationId", reservationId)
+					.withPrimaryKey("id", reservationId)
 					.withInt("tableNumber", tableNumber)
 					.withString("clientName", clientName)
 					.withString("phoneNumber", phoneNumber)
 					.withString("date", date)
 					.withString("slotTimeStart", slotTimeStart)
 					.withString("slotTimeEnd", slotTimeEnd);
+
 
 			reservationsTable.putItem(newReservation);
 
@@ -278,7 +300,13 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		try {
 			Table reservationsTable = dynamoDB.getTable(System.getenv("Reservations"));
 
-			List<Item> reservations = reservationsTable.scan().getLastLowLevelResult().getItems();
+			Iterator<Item> iterator = reservationsTable.scan().iterator();
+			List<Item> reservations = new ArrayList<>();
+			while (iterator.hasNext()) {
+				reservations.add(iterator.next());
+			}
+
+			context.getLogger().log("Reservations: " + reservations);
 
 			List<Map<String, Object>> reservationList = reservations.stream().map(reservation -> {
 					Map<String, Object> tmp = new HashMap<String, Object>();

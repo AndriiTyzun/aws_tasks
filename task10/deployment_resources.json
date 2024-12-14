@@ -134,7 +134,7 @@
           "default_error_pattern": true
         }
       },
-      "/tables/": {
+      "/tables/{tableId}": {
         "enable_cors": false,
         "GET": {
           "enable_proxy": true,
