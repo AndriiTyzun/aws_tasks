@@ -54,8 +54,10 @@
     },
     "auto_verified_attributes": [],
     "sms_configuration": {},
-    "username_attributes": [],
-    "custom_attributes": [],
+    "username_attributes": [
+    ],
+    "custom_attributes": [
+    ],
     "client": {
       "client_name": "client-app",
       "generate_secret": false,
@@ -74,7 +76,7 @@
     "dependencies": [],
     "resources": {
       "/signin": {
-        "enable_cors": true,
+        "enable_cors": false,
         "POST": {
           "enable_proxy": true,
           "authorization_type": "NONE",
@@ -89,7 +91,7 @@
         }
       },
       "/signup": {
-        "enable_cors": true,
+        "enable_cors": false,
         "POST": {
           "enable_proxy": true,
           "authorization_type": "NONE",
@@ -104,7 +106,7 @@
         }
       },
       "/tables": {
-        "enable_cors": true,
+        "enable_cors": false,
         "GET": {
           "enable_proxy": true,
           "authorization_type": "authorizer",
@@ -131,7 +133,7 @@
         }
       },
       "/tables/": {
-        "enable_cors": true,
+        "enable_cors": false,
         "GET": {
           "enable_proxy": true,
           "authorization_type": "authorizer",
@@ -146,7 +148,7 @@
         }
       },
       "/reservations": {
-        "enable_cors": true,
+        "enable_cors": false,
         "GET": {
           "enable_proxy": true,
           "authorization_type": "authorizer",

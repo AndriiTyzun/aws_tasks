@@ -20,14 +20,14 @@
     "event_sources" : [ ],
     "env_variables" : {
       "CLIENT_ID" : {
-        "resource_name" : "${booking_userpool}",
         "resource_type" : "cognito_idp",
-        "parameter" : "client_id"
+        "parameter" : "client_id",
+        "resource_name" : "${booking_userpool}"
       },
       "COGNITO_ID" : {
-        "resource_name" : "${booking_userpool}",
         "resource_type" : "cognito_idp",
-        "parameter" : "id"
+        "parameter" : "id",
+        "resource_name" : "${booking_userpool}"
       },
       "REGION" : "${region}"
     },

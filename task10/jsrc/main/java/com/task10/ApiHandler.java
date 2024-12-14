@@ -58,6 +58,8 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 	}
 
 	public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context context) {
+		context.getLogger().log("Started event: " + event);
+
 		String path = event.getPath();
 		String method = event.getHttpMethod();
 
@@ -94,13 +96,18 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 					.temporaryPassword(password)
 					.messageAction("SUPPRESS")
 					.userAttributes(
-							Map.of(
-											"firstName", firstName,
-											"lastName", lastName,
-											"email", email
-									).entrySet().stream()
-									.map(entry -> AttributeType.builder().name(entry.getKey()).value(entry.getValue()).build())
-									.collect(Collectors.toList())
+							AttributeType.builder()
+									.name("given_name")
+									.value(firstName)
+									.build(),
+							AttributeType.builder()
+									.name("family_name")
+									.value(lastName)
+									.build(),
+							AttributeType.builder()
+									.name("email")
+									.value(email)
+									.build()
 					)
 					.build();
 
@@ -116,7 +123,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		Map<String, String> body = parseRequestBody(event.getBody());
 		String email = body.get("email");
 		String password = body.get("password");
-
+		context.getLogger().log("SignIn event: " + email + " - " + password);
 		try {
 			AdminInitiateAuthRequest authRequest = AdminInitiateAuthRequest.builder()
 					.userPoolId(System.getenv("COGNITO_ID"))
@@ -124,12 +131,17 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 					.authFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
 					.authParameters(Map.of("USERNAME", email, "PASSWORD", password))
 					.build();
-
+			context.getLogger().log("authRequest: " + authRequest);
 			AdminInitiateAuthResponse authResponse = cognitoClient.adminInitiateAuth(authRequest);
+
+			context.getLogger().log("authResponse: " + authResponse.authenticationResult());
+			context.getLogger().log("authResponse: " + authResponse.authenticationResult().idToken());
 
 			return createSuccessResponse(Map.of("accessToken", authResponse.authenticationResult().idToken()));
 		} catch (Exception e) {
-			return createErrorResponse(401, "Invalid credentials");
+			context.getLogger().log("Error: " + e.getCause());
+			context.getLogger().log("Error: " + Arrays.toString(e.getStackTrace()));
+			return createErrorResponse(401, "Invalid credentials: " + e);
 		}
 	}
 
@@ -149,7 +161,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 			return createSuccessResponse(Map.of("tables", tables));
 		} catch (Exception e) {
-			return createErrorResponse(500, "Failed to fetch tables");
+			return createErrorResponse(500, "Failed to fetch tables: " + e);
 		}
 	}
 
@@ -171,7 +183,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 			return createSuccessResponse(Map.of("id", newItem.getInt("id")));
 		} catch (Exception e) {
-			return createErrorResponse(500, "Failed to create table");
+			return createErrorResponse(500, "Failed to create table " + e);
 		}
 	}
 
@@ -195,7 +207,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 			return createSuccessResponse(tableDetails);
 		} catch (Exception e) {
-			return createErrorResponse(500, "Failed to fetch table by ID");
+			return createErrorResponse(500, "Failed to fetch table by ID " + e);
 		}
 	}
 
@@ -243,7 +255,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 			return createSuccessResponse(Map.of("reservationId", reservationId));
 		} catch (Exception e) {
-			return createErrorResponse(500, "Failed to create reservation");
+			return createErrorResponse(500, "Failed to create reservation " + e);
 		}
 	}
 
@@ -267,7 +279,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 			return createSuccessResponse(Map.of("reservations", reservationList));
 		} catch (Exception e) {
-			return createErrorResponse(500, "Failed to fetch reservations");
+			return createErrorResponse(500, "Failed to fetch reservations " + e);
 		}
 	}
 
