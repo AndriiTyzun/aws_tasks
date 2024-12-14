@@ -279,12 +279,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 			}
 
 			Table table = dynamoDB.getTable(System.getenv("Tables"));
-			Iterator<Item> tableiterator = table.scan().iterator();
-			List<Item> items = new ArrayList<>();
-			while (iterator.hasNext()) {
-				items.add(iterator.next());
-			}
-			if(items.stream().noneMatch(x -> x.getInt("number") == tableNumber)){
+			if(table.getItem("number", tableNumber) == null){
 				return createErrorResponse(400, "Table not found");
 			}
 
