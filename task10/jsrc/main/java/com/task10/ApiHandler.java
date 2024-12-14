@@ -9,6 +9,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.syndicate.deployment.annotations.environment.EnvironmentVariable;
@@ -115,7 +116,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 			return createSuccessResponse(Map.of("message", "User created successfully"));
 		} catch (Exception e) {
-			return createErrorResponse(500, "Failed to create user: " + e);
+			return createErrorResponse(400, "Failed to create user: " + e);
 		}
 	}
 
@@ -153,7 +154,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 			return createSuccessResponse(Map.of("accessToken", authResponse.authenticationResult().idToken()));
 		} catch (Exception e) {
 			context.getLogger().log("Error: " + e);
-			return createErrorResponse(401, "Invalid credentials: " + e);
+			return createErrorResponse(400, "Invalid credentials: " + e);
 		}
 	}
 
@@ -173,7 +174,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 			return createSuccessResponse(Map.of("tables", tables));
 		} catch (Exception e) {
-			return createErrorResponse(500, "Failed to fetch tables: " + e);
+			return createErrorResponse(400, "Failed to fetch tables: " + e);
 		}
 	}
 
@@ -195,7 +196,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 			return createSuccessResponse(Map.of("id", newItem.getInt("id")));
 		} catch (Exception e) {
-			return createErrorResponse(500, "Failed to create table " + e);
+			return createErrorResponse(400, "Failed to create table " + e);
 		}
 	}
 
@@ -206,7 +207,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 			Item item = table.getItem("id", Integer.parseInt(tableId));
 
 			if (item == null) {
-				return createErrorResponse(404, "Table not found");
+				return createErrorResponse(400, "Table not found");
 			}
 
 			Map<String, Object> tableDetails = Map.of(
@@ -219,7 +220,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 			return createSuccessResponse(tableDetails);
 		} catch (Exception e) {
-			return createErrorResponse(500, "Failed to fetch table by ID " + e);
+			return createErrorResponse(400, "Failed to fetch table by ID " + e);
 		}
 	}
 
@@ -296,10 +297,16 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 	}
 
 	private APIGatewayProxyResponseEvent createSuccessResponse(Object body) {
-		return new APIGatewayProxyResponseEvent()
-				.withStatusCode(200)
-				.withBody(body.toString())
-				.withHeaders(headersForCORS);
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			String jsonBody = objectMapper.writeValueAsString(body);
+			return new APIGatewayProxyResponseEvent()
+					.withStatusCode(200)
+					.withHeaders(headersForCORS)
+					.withBody(jsonBody);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("Error serializing response body to JSON", e);
+		}
 	}
 
 	private APIGatewayProxyResponseEvent createErrorResponse(int statusCode, String message) {
