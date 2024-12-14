@@ -46,13 +46,15 @@
   "simple-booking-userpool": {
     "resource_type": "cognito_idp",
     "password_policy": {
-      "minimum_length": 6,
-      "require_uppercase": false,
-      "require_symbols": false,
-      "require_lowercase": false,
-      "require_numbers": false
+      "minimum_length": 12,
+      "require_uppercase": true,
+      "require_symbols": true,
+      "require_lowercase": true,
+      "require_numbers": true
     },
-    "auto_verified_attributes": [],
+    "auto_verified_attributes": [
+      "email"
+    ],
     "sms_configuration": {},
     "username_attributes": [
     ],

@@ -123,24 +123,36 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		Map<String, String> body = parseRequestBody(event.getBody());
 		String email = body.get("email");
 		String password = body.get("password");
-		context.getLogger().log("SignIn event: " + email + " - " + password);
+		context.getLogger().log("SignIn event: " + email + " - " + password + " - " + System.getenv("COGNITO_ID") + " - " + System.getenv("CLIENT_ID"));
 		try {
-			AdminInitiateAuthRequest authRequest = AdminInitiateAuthRequest.builder()
-					.userPoolId(System.getenv("COGNITO_ID"))
-					.clientId(System.getenv("CLIENT_ID"))
+			AdminInitiateAuthResponse authResponse = cognitoClient.adminInitiateAuth(AdminInitiateAuthRequest.builder()
 					.authFlow(AuthFlowType.ADMIN_NO_SRP_AUTH)
 					.authParameters(Map.of("USERNAME", email, "PASSWORD", password))
-					.build();
-			context.getLogger().log("authRequest: " + authRequest);
-			AdminInitiateAuthResponse authResponse = cognitoClient.adminInitiateAuth(authRequest);
+					.userPoolId(System.getenv("COGNITO_ID"))
+					.clientId(System.getenv("CLIENT_ID"))
+					.build());
 
-			context.getLogger().log("authResponse: " + authResponse.authenticationResult());
-			context.getLogger().log("authResponse: " + authResponse.authenticationResult().idToken());
+			if (ChallengeNameType.NEW_PASSWORD_REQUIRED.name().equals(authResponse.challengeNameAsString())) {
+				return createSuccessResponse(Map.of("accessToken",
+				cognitoClient.adminRespondToAuthChallenge(AdminRespondToAuthChallengeRequest.builder()
+						.challengeName(ChallengeNameType.NEW_PASSWORD_REQUIRED)
+						.challengeResponses(Map.of(
+								"USERNAME", email,
+								"PASSWORD",password,
+								"NEW_PASSWORD", password
+						))
+						.userPoolId(System.getenv("COGNITO_ID"))
+						.clientId(System.getenv("CLIENT_ID"))
+						.session(authResponse.session())
+						.build()).authenticationResult().idToken()));
+			}
+
+			context.getLogger().log("authResponse: " + authResponse);
+			context.getLogger().log("authResponse token: " + authResponse.authenticationResult().idToken());
 
 			return createSuccessResponse(Map.of("accessToken", authResponse.authenticationResult().idToken()));
 		} catch (Exception e) {
-			context.getLogger().log("Error: " + e.getCause());
-			context.getLogger().log("Error: " + Arrays.toString(e.getStackTrace()));
+			context.getLogger().log("Error: " + e);
 			return createErrorResponse(401, "Invalid credentials: " + e);
 		}
 	}
