@@ -248,6 +248,16 @@
       "post": {
         "summary": "Create a new table",
         "description": "Allows clients to create a new table.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Table"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successfully created the table.",
