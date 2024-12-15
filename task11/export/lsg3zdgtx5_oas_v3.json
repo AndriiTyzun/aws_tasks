@@ -17,9 +17,11 @@
   "paths": {
     "/reservations": {
       "get": {
+        "summary": "Get reservations",
+        "description": "Retrieves a list of all reservations.",
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "Successfully retrieved reservations.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
@@ -30,7 +32,27 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Empty"
+                  "$ref": "#/components/schemas/ReservationList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -57,9 +79,21 @@
         }
       },
       "post": {
+        "summary": "Create a reservation",
+        "description": "Creates a new reservation with the provided details.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReservationRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "Reservation created successfully.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
@@ -70,7 +104,27 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Empty"
+                  "$ref": "#/components/schemas/CreateReservationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -97,9 +151,11 @@
         }
       },
       "options": {
+        "summary": "CORS preflight",
+        "description": "Handles CORS preflight requests.",
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "CORS headers set.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
@@ -147,11 +203,14 @@
     },
     "/tables": {
       "get": {
+        "summary": "Retrieve a list of tables",
+        "description": "Returns a list of tables with metadata.",
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "Successfully retrieved the list of tables.",
             "headers": {
               "Access-Control-Allow-Origin": {
+                "description": "Indicates whether the response can be shared with requesting code from the given origin.",
                 "schema": {
                   "type": "string"
                 }
@@ -160,7 +219,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Empty"
+                  "$ref": "#/components/schemas/TableList"
                 }
               }
             }
@@ -187,11 +246,14 @@
         }
       },
       "post": {
+        "summary": "Create a new table",
+        "description": "Allows clients to create a new table.",
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "Successfully created the table.",
             "headers": {
               "Access-Control-Allow-Origin": {
+                "description": "Indicates whether the response can be shared with requesting code from the given origin.",
                 "schema": {
                   "type": "string"
                 }
@@ -200,7 +262,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Empty"
+                  "$ref": "#/components/schemas/Table"
                 }
               }
             }
@@ -227,21 +289,26 @@
         }
       },
       "options": {
+        "summary": "CORS preflight request",
+        "description": "Handles CORS preflight requests for the /tables endpoint.",
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "Preflight response with allowed headers, methods, and origin.",
             "headers": {
               "Access-Control-Allow-Origin": {
+                "description": "Indicates whether the response can be shared with requesting code from the given origin.",
                 "schema": {
                   "type": "string"
                 }
               },
               "Access-Control-Allow-Methods": {
+                "description": "Specifies the allowed HTTP methods.",
                 "schema": {
                   "type": "string"
                 }
               },
               "Access-Control-Allow-Headers": {
+                "description": "Specifies the allowed HTTP headers.",
                 "schema": {
                   "type": "string"
                 }
@@ -261,7 +328,7 @@
             "default": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.Access-Control-Allow-Methods": "'*'",
+                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
                 "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
               }
@@ -277,9 +344,22 @@
     },
     "/signin": {
       "post": {
+        "summary": "User Sign-in",
+        "description": "Authenticates a user and returns a token upon successful sign-in.",
+        "requestBody": {
+          "description": "Sign-in request payload containing username and password.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "Successful authentication response.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
@@ -287,6 +367,26 @@
                 }
               }
             },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignInResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid credentials or missing input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
             "content": {
               "application/json": {
                 "schema": {
@@ -362,6 +462,8 @@
     },
     "/tables/{tableId}": {
       "get": {
+        "summary": "Get Table Details",
+        "description": "Fetches the details of a specific table by its ID.",
         "parameters": [
           {
             "name": "tableId",
@@ -369,12 +471,13 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "The ID of the table to fetch."
           }
         ],
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "Successfully retrieved table details.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
@@ -382,6 +485,26 @@
                 }
               }
             },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableDetailsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Table not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
             "content": {
               "application/json": {
                 "schema": {
@@ -412,16 +535,7 @@
         }
       },
       "options": {
-        "parameters": [
-          {
-            "name": "tableId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "summary": "CORS Preflight Request",
         "responses": {
           "200": {
             "description": "200 response",
@@ -472,9 +586,21 @@
     },
     "/signup": {
       "post": {
+        "summary": "User Signup",
+        "description": "Creates a new user account with the provided details.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "Signup was successful.",
             "headers": {
               "Access-Control-Allow-Origin": {
                 "schema": {
@@ -482,6 +608,26 @@
                 }
               }
             },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
             "content": {
               "application/json": {
                 "schema": {
@@ -507,6 +653,7 @@
         }
       },
       "options": {
+        "summary": "CORS Preflight Request",
         "responses": {
           "200": {
             "description": "200 response",
@@ -561,6 +708,168 @@
       "Empty": {
         "title": "Empty Schema",
         "type": "object"
+      },
+      "ReservationList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Reservation"
+        }
+      },
+      "Reservation": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "date": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateReservationRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "date": { "type": "string", "format": "date-time" }
+        },
+        "required": ["name", "date"]
+      },
+      "CreateReservationResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" },
+          "details": { "type": "string" }
+        }
+      },
+      "Table": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the table."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name or label for the table."
+          },
+          "capacity": {
+            "type": "integer",
+            "description": "Maximum seating capacity of the table."
+          },
+          "location": {
+            "type": "string",
+            "description": "Location or section where the table is situated."
+          }
+        },
+        "required": ["id", "name", "capacity"]
+      },
+      "TableList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Table"
+        },
+        "description": "A list of tables."
+      },
+      "SignInRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "The username or email of the user."
+          },
+          "password": {
+            "type": "string",
+            "description": "The password for the user account."
+          }
+        },
+        "required": ["username", "password"],
+        "description": "Schema for the sign-in request payload."
+      },
+      "SignInResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT or session token returned upon successful sign-in."
+          },
+          "message": {
+            "type": "string",
+            "description": "Success message."
+          }
+        },
+        "required": ["token"],
+        "description": "Schema for the response of a successful sign-in."
+      },
+      "TableDetailsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the table."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the table."
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "columnName": {
+                  "type": "string",
+                  "description": "Name of the column."
+                },
+                "dataType": {
+                  "type": "string",
+                  "description": "Data type of the column."
+                }
+              }
+            },
+            "description": "List of columns in the table."
+          }
+        },
+        "required": ["id", "name", "columns"],
+        "description": "Schema for the details of a specific table."
+      },
+      "SignupRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "The username for the new account."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "The email address for the new account."
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "The password for the new account."
+          }
+        },
+        "required": ["username", "email", "password"],
+        "description": "The payload required to create a new account."
+      },
+      "SignupResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "User created successfully."
+          },
+          "userId": {
+            "type": "string",
+            "description": "The unique identifier for the newly created user."
+          }
+        },
+        "description": "Response schema for a successful signup."
       }
     },
     "securitySchemes": {
